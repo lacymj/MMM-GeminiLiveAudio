@@ -1,6 +1,6 @@
 /* global Module, Log */
 
-// --- Start of Utility Functions (from utils.ts) ---
+// Define Utility Functions
 
 function encode(bytes) {
     let binary = '';
@@ -55,11 +55,14 @@ async function decodeAudioData(data, ctx, sampleRate, numChannels) {
     return buffer;
 }
 
-// --- End of Utility Functions ---
+// Register the module with MagicMirror
 
 Module.register('MMM-GeminiLiveAudio', {
     defaults: {
         apiKey: '', // IMPORTANT: This must be set in config.js
+        model: 'gemini-2.5-flash-preview-native-audio-dialog',
+        voice: 'Enceladus',
+        defaultBio: 'You are a helpful assistant',
     },
 
     // --- Module Properties ---
@@ -73,6 +76,7 @@ Module.register('MMM-GeminiLiveAudio', {
     sourceNode: null,
     audioWorkletNode: null, // Replaces scriptProcessorNode
     sources: null,
+    currentBio: "",
 
     // --- Core MagicMirror² Methods ---
 
@@ -93,7 +97,7 @@ Module.register('MMM-GeminiLiveAudio', {
         this.outputNode.connect(this.outputAudioContext.destination);
 
         // Start communication with the node_helper
-        this.sendSocketNotification('INIT_GEMINI', { apiKey: this.config.apiKey });
+        this.sendSocketNotification('INIT_GEMINI', this.config);
     },
 
     getStyles: function () {
@@ -121,7 +125,7 @@ Module.register('MMM-GeminiLiveAudio', {
         } else if (notification === 'GEMINI_STOP_RECORDING') {
             this.stopRecording();
         } else if (notification === 'GEMINI_RESET_SESSION') {
-            this.resetSession();
+            this.resetSession(payload);
         }
     },
 
@@ -250,6 +254,6 @@ Module.register('MMM-GeminiLiveAudio', {
         }
         this.status = 'Resetting session...';
         this.updateDom();
-        this.sendSocketNotification('RESET_SESSION');
+        this.sendSocketNotification('RESET_SESSION',);
     },
 });
